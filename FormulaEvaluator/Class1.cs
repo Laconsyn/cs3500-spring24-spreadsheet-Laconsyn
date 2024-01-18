@@ -18,14 +18,36 @@ namespace FormulaEvaluator
     ///
     /// File Contents
     ///
-    ///    [... and of course you should describe the contents of the 
-    ///    file in broad terms here ...]
+    ///    The file contains the Evaluate method that helps spreadsheet calculation. 
     /// </summary>
     public static class Evaluator
     {
-
+        /// <summary>
+        /// Gets the value of variable using in expression by its name
+        /// </summary>
+        /// <param name="variable_name">represents the name of variable using in the expression</param>
+        /// <returns>the value of variable of given name</returns>
         public delegate int Lookup(String variable_name);
 
+        /// <summary>
+        /// calculate a result for spreadsheet using given expression. 
+        /// only accept non-negative integers
+        /// variable names must begin with one or more letters and end with one or more digits
+        /// can be upper or lower case
+        /// white spaces are automatically removed
+        /// cannot use special characters
+        /// </summary>
+        /// <param name="expression"> formula to calculate</param>
+        /// <param name="variableEvaluator">assigning values to the variables by their names</param>
+        /// <returns>the result of expression</returns>
+        /// <exception cref="ArgumentException">
+        /// when any stack is empty
+        /// when lookup reveals it has no value
+        /// when '(' isn't found where expected
+        /// when invalid character in expression
+        /// There isn't exactly one operator on the operator stack or two numbers on the value stack
+        /// after the last token has been processed
+        /// </exception>
         public static int Evaluate(String expression,
                                    Lookup variableEvaluator)
         {
@@ -154,7 +176,19 @@ namespace FormulaEvaluator
                 return valueStack.Pop(); //report the result as the value
             }
         }
-
+        /// <summary>
+        /// pops the first and second value in given value stack
+        /// pops the first operator in given operator stack
+        /// applies the operator to calculate the result
+        /// push the result to the value stack
+        /// </summary>
+        /// <param name="operatorStack">stack that provides operator to calculate</param>
+        /// <param name="valueStack">stack that provides two numbers to calculate</param>
+        /// <exception cref="ArgumentException">
+        /// when the value stack has less than 2 values
+        /// or when division zero occurs
+        /// or when operator is not +, -, *, /
+        /// </exception>
         private static void calculate(Stack<string> operatorStack, Stack<int> valueStack)
         {
             if (valueStack.Count < 2)
@@ -186,6 +220,11 @@ namespace FormulaEvaluator
             valueStack.Push(result);
         }
 
+        /// <summary>
+        /// check if the given string follows the rule to name a variable
+        /// </summary>
+        /// <param name="variable_name">given string to check if it is a variable name</param>
+        /// <returns>true if the given string is a variable name</returns>
         private static bool isVariale(string variable_name)
         {
             int letterCount = 0;
@@ -218,6 +257,11 @@ namespace FormulaEvaluator
             return true;
         }
 
+        /// <summary>
+        /// splts the expression into tokens
+        /// </summary>
+        /// <param name="expression">string that contains the formula to be splited</param>
+        /// <returns>an array of tokens in order</returns>
         private static string[] split(string expression)
         {
             string[] substrings =

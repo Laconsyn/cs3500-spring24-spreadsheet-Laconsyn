@@ -1,6 +1,24 @@
 ﻿
 using FormulaEvaluator;
 
+    /// <summary>
+    /// Author:    Cheuk Yin Lau
+    /// Partner:   None
+    /// Date:      2023-01-17
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Cheuk Yin Lau - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Cheuk Yin Lau, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    ///
+    ///    The file test the Evaluate method in FormulaEvaluator class. 
+    /// </summary>
+
 //Addition and subtractions
 //addition
 test(Evaluator.Evaluate("3+2", null), 5);
@@ -130,7 +148,13 @@ try { Evaluator.Evaluate("!+1", null);          throw new Exception("test failed
 try { Evaluator.Evaluate("a1", (x) => throw new ArgumentNullException()); }         catch (ArgumentException e) { Console.WriteLine("test passed! "); }
 
 
-
+/// <summary>
+/// gets the test result and expected result and compares them
+/// </summary>
+/// <param name="actual">represents the actual test result </param>
+/// <param name="expected">represents the expected test result </param>
+/// <exception cref="ArgumentException"> when expected and actual result does not matched </exception>
+/// <returns></returns>
 void test(int actual, int expected)
 {
     if (expected != actual)
@@ -139,8 +163,4 @@ void test(int actual, int expected)
     Console.WriteLine("test passed! ");
 }
 
-void testException(ArgumentException e)
-{
-    Console.WriteLine("test passed! ");
-}
 
