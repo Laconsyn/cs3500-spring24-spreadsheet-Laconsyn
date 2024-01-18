@@ -55,6 +55,10 @@ namespace FormulaEvaluator
                 string top = "";
                 if (int.TryParse(token, out value))
                 {
+
+                    if (valueStack == null)
+                        throw new ArgumentException("The value stack is empty.");
+
                     //if * or / is at the top
                     bool hasTop = operatorStack.TryPeek(out top);
                     if (hasTop && (top == "*" || top == "/"))
@@ -69,7 +73,18 @@ namespace FormulaEvaluator
                 //variable
                 else if (isVariale(token))
                 {
-                    tokenStack.Push(variableEvaluator(token).ToString());
+                    if (valueStack == null)
+                        throw new ArgumentException("the value stack is empty");
+
+                    try ////get looked up value
+                    {
+                        int lookedUpValue = variableEvaluator(token);
+                        tokenStack.Push(lookedUpValue.ToString());
+                    } catch (Exception e) //the delegate throws exception
+                    {
+                        throw new ArgumentException("looking up t reveals it has no value");
+                    }
+                    
                 }
                 // "+" or "-"
                 else if (token == "+" || token == "-")
@@ -78,7 +93,7 @@ namespace FormulaEvaluator
                     bool hasTop = operatorStack.TryPeek(out top);
                     if (hasTop && (top == "+" || top == "-"))
                         calculate(operatorStack, valueStack); //calculate and push the result
-                    else //otherwise, push t
+                    //push t
                         operatorStack.Push(token); 
                 }
                 // "*" or "/"
@@ -101,7 +116,7 @@ namespace FormulaEvaluator
                         calculate(operatorStack, valueStack); //calculate and push the result
                     //check if "(" is found
                     hasTop = operatorStack.TryPeek(out top);
-                    if (hasTop && (top != "("))
+                    if (!hasTop || (top != "("))
                         throw new ArgumentException("A '(' isn't found where expected");
                     else //pop "("
                         operatorStack.Pop();
@@ -118,7 +133,7 @@ namespace FormulaEvaluator
                 {
                     throw new ArgumentException("Invalid character in expression: " + token);
                 }
-               
+                Console.WriteLine(token + ", "+ operatorStack.Count + ", " + valueStack.Count);
             }
             //the last token has been processed
             if (operatorStack.Count == 0) //Operator stack is empty
@@ -142,14 +157,19 @@ namespace FormulaEvaluator
 
         private static void calculate(Stack<string> operatorStack, Stack<int> valueStack)
         {
+            if (valueStack.Count < 2)
+                throw new ArgumentException("The value stack contains fewer than 2 values");
+
             //get two values and the operator
             int i2 = valueStack.Pop();
             int i1 = valueStack.Pop();
             string oper = operatorStack.Pop();
             int result;
 
+            if (oper == "/" && i2 == 0)
+                throw new ArgumentException("A division by zero occurs.");
             //calculate using i1 and i2 by the operator
-            switch(oper) {
+            switch (oper) {
                 case "+":
                     result = i1 + i2; break;
                 case "-":
@@ -195,7 +215,6 @@ namespace FormulaEvaluator
             //false if no letter or no digit
             if(letterCount == 0 || digitCount == 0) { return false; }
 
-            Console.WriteLine("true: " + variable_name);
             return true;
         }
 
