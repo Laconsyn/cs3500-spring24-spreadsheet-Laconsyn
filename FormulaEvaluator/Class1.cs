@@ -31,6 +31,7 @@ namespace FormulaEvaluator
         {
             //split the expression to tokens
             string[] tokens = split(expression);
+
             //stack the tokens
             Stack<string> tokenStack = new Stack<string>();
             for(int i = tokens.Length-1; i >= 0;i--)
@@ -43,18 +44,23 @@ namespace FormulaEvaluator
             //iterate through the tokens
             while(tokenStack.Count > 0)
             {
+                //get token
                 string token = tokenStack.Pop();
+                if (token.Length == 0) //ignore empty tokens
+                    continue;
+
                 //check conditions
                 //integer
                 int value;
-                if(int.TryParse(token, out value))
+                string top = "";
+                if (int.TryParse(token, out value))
                 {
                     //if * or / is at the top
-                    string top = operatorStack.Peek();
-                    if (top == "*" || top == "/")
+                    bool hasTop = operatorStack.TryPeek(out top);
+                    if (hasTop && (top == "*" || top == "/"))
                     {
                         valueStack.Push(value);
-                        calculate(operatorStack,valueStack); //calculate and push the result
+                        calculate(operatorStack, valueStack); //calculate and push the result
                     }
                     //otherwise, push the value
                     else
@@ -69,14 +75,14 @@ namespace FormulaEvaluator
                 else if (token == "+" || token == "-")
                 {
                     //if + or - is at the top
-                    string top = operatorStack.Peek();
-                    if (top == "+" || top == "-")
+                    bool hasTop = operatorStack.TryPeek(out top);
+                    if (hasTop && (top == "+" || top == "-"))
                         calculate(operatorStack, valueStack); //calculate and push the result
                     else //otherwise, push t
                         operatorStack.Push(token); 
                 }
                 // "*" or "/"
-                else if (token == "+" || token == "-")
+                else if (token == "*" || token == "/")
                 {
                     operatorStack.Push(token);
                 }
@@ -89,19 +95,30 @@ namespace FormulaEvaluator
                 else if (token == ")")
                 {
                     //get operator at the top
-                    string top = operatorStack.Peek();
+                    bool hasTop = operatorStack.TryPeek(out top);
                     //If + or - is at the top
-                    if (top == "+" || top == "-")
+                    if (hasTop && (top == "+" || top == "-"))
                         calculate(operatorStack, valueStack); //calculate and push the result
-                    //pop "("
-                    top = operatorStack.Pop();
-                    if (top != "(")
+                    //check if "(" is found
+                    hasTop = operatorStack.TryPeek(out top);
+                    if (hasTop && (top != "("))
                         throw new ArgumentException("A '(' isn't found where expected");
+                    else //pop "("
+                        operatorStack.Pop();
                     //If * or / is at the top
-                    top = operatorStack.Peek();
-                    if (top == "*" || top == "/")
+                    hasTop = operatorStack.TryPeek(out top);
+                    if (hasTop && (top == "*" || top == "/"))
                         calculate(operatorStack, valueStack); //calculate and push the result
                 }
+                else if (token == " ")
+                {
+                    continue; //ignore space
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid character in expression: " + token);
+                }
+               
             }
             //the last token has been processed
             if (operatorStack.Count == 0) //Operator stack is empty
@@ -126,8 +143,8 @@ namespace FormulaEvaluator
         private static void calculate(Stack<string> operatorStack, Stack<int> valueStack)
         {
             //get two values and the operator
-            int i1 = valueStack.Pop();
             int i2 = valueStack.Pop();
+            int i1 = valueStack.Pop();
             string oper = operatorStack.Pop();
             int result;
 
