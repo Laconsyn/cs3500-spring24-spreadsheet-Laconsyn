@@ -5,7 +5,7 @@ Start Date: 17-Jan-2023
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  Laconsyn
 Repo:       https://github.com/Laconsyn/cs3500-spring24-spreadsheet-Laconsyn
-Commit Date: 18-Jan-2023 11:00 am
+Commit Date: 18-Jan-2023 11:20 am
 Solution:   Spreadsheet
 Copyright:  CS 3500 and Cheuk Yin Lau - This work may not be copied for use in Academic Coursework.
 ```

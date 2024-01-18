@@ -155,7 +155,6 @@ namespace FormulaEvaluator
                 {
                     throw new ArgumentException("Invalid character in expression: " + token);
                 }
-                Console.WriteLine(token + ", "+ operatorStack.Count + ", " + valueStack.Count);
             }
             //the last token has been processed
             if (operatorStack.Count == 0) //Operator stack is empty
@@ -229,24 +228,34 @@ namespace FormulaEvaluator
         {
             int letterCount = 0;
             int digitCount = 0;
+            //ignore first space
+            if (variable_name[0] == ' ')
+            {
+                variable_name = variable_name.Substring(1);
+            }
+
             foreach(char character in variable_name)
             {
                 //check ascii code
                 int ascii = (int) character;
                 //letter
-                if(ascii >= 65 && ascii <= 122) {
+                if (ascii >= 65 && ascii <= 122)
+                {
                     //false if check letter after digit
-                    if(digitCount != 0){return false;}
+                    if (digitCount != 0) { return false; }
 
                     //update letter count
                     letterCount++;
                 }
                 //digits
-                else if(ascii >= 48 && ascii <= 57)
+                else if (ascii >= 48 && ascii <= 57)
                 {
                     //update digit count
                     digitCount++;
                 }
+                //ignore last space 
+                else if (ascii == 32)
+                    break;
                 //neither
                 else { return false; }
             }
