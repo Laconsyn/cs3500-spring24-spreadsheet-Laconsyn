@@ -263,11 +263,153 @@ namespace DevelopmentTests
 
 
         /// <summary>
-        ///Using lots of data
+        ///dependee's size
         ///</summary>
         [TestMethod()]
-        public void Test1()
+        public void DependeeSize()
         {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            Assert.AreEqual(0, t["a"]);
+
+            t.AddDependency("a", "b");
+            Assert.AreEqual(1, t["a"]);
+
+            t.RemoveDependency("a", "b");
+            Assert.AreEqual(0, t["a"]);
+        }
+
+        /// <summary>
+        ///simple has dependent
+        ///</summary>
+        [TestMethod()]
+        public void HasDependent()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            Assert.IsFalse(t.HasDependents("b"));
+
+            t.AddDependency("a", "b");
+            Assert.IsTrue(t.HasDependents("b"));
+
+            t.RemoveDependency("a", "b");
+            Assert.IsFalse(t.HasDependents("b"));
+        }
+
+        /// <summary>
+        ///simple has dependee
+        ///</summary>
+        [TestMethod()]
+        public void HasDependee()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            Assert.IsFalse(t.HasDependees("a"));
+
+            t.AddDependency("a", "b");
+            Assert.IsTrue(t.HasDependees("a"));
+
+            t.RemoveDependency("a", "b");
+            Assert.IsFalse(t.HasDependees("a"));
+        }
+
+        /// <summary>
+        ///get dependents
+        ///</summary>
+        [TestMethod()]
+        public void GetDependents()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            //empty
+            List<string> actual = (List<string>) t.GetDependents("a");
+            Assert.AreEqual(0,actual.Count);
+
+            //same
+            t.AddDependency("a", "a");
+            actual = (List<string>)t.GetDependents("a");
+            Assert.AreEqual("a", actual[0]);
+
+            //multiple
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "c");
+            t.AddDependency("a", "d");
+            t.RemoveDependency("a", "a");
+
+            actual = (List<string>)t.GetDependents("a");
+            Assert.AreEqual("b", actual[0]);
+            Assert.AreEqual("c", actual[1]);
+            Assert.AreEqual("d", actual[2]);
+        }
+
+        /// <summary>
+        ///get dependees
+        ///</summary>
+        [TestMethod()]
+        public void GetDependees()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            
+            //empty
+            List<string> actual = (List<string>)t.GetDependees("a");
+            Assert.AreEqual(0, actual.Count);
+
+            //same
+            t.AddDependency("a", "a");
+            actual = (List<string>)t.GetDependees("a");
+            Assert.AreEqual("a", actual[0]);
+
+            //multiple
+            t.AddDependency("b", "a");
+            t.AddDependency("c", "a");
+            t.RemoveDependency("a", "a");
+            actual = (List<string>)t.GetDependees("a");
+            Assert.AreEqual("b", actual[0]);
+            Assert.AreEqual("c", actual[1]);
+        }
+
+        /// <summary>
+        ///get dependees
+        ///</summary>
+        [TestMethod()]
+        public void AddDependency()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            //same
+            t.AddDependency("a", "a");
+            Assert.AreEqual(1, t["a"]);
+
+            //multiple
+            t.AddDependency("a", "b");
+            Assert.AreEqual(2, t["a"]);
+
+            //repeated
+            t.AddDependency("a", "b");
+            Assert.AreEqual(2, t["a"]);
+
+            List<string> actual = (List<string>)t.GetDependents("a");
+            Assert.AreEqual("a", actual[0]);
+            Assert.AreEqual("b", actual[1]);
+
+            //multiple keys
+            t.AddDependency("b", "c");
+            t.AddDependency("b", "a");
+            //empty string
+            t.AddDependency("b", "");
+            //special character
+            t.AddDependency("b", "!");
+            actual = (List<string>)t.GetDependents("b");
+            Assert.AreEqual("c", actual[0]);
+            Assert.AreEqual("a", actual[1]);
+            Assert.AreEqual("", actual[2]);
+            Assert.AreEqual("!", actual[3]);
 
         }
     }

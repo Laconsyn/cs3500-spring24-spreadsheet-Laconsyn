@@ -4,6 +4,7 @@
 // Version 1.2 - Daniel Kopta
 // (Clarified meaning of dependent and dependee.)
 // (Clarified names in solution/project structure.)
+// Version 1.3 - Cheuk Yin Lau (Complete the content of the methods following the API)
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,15 +41,19 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
-        private int size;
-        private Hashtable dependents;
-        private Hashtable dependees;
+        //fields
+        private int size; //The number of ordered pairs in the DependencyGraph.
+
+        //using the name of cell as the string key, and a string list of cells as the value
+        private Hashtable dependents; //search for dependents
+        private Hashtable dependees; //search for dependees
 
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
         public DependencyGraph()
         {
+            //initialize
             size = 0;
             dependents = new Hashtable();
             dependees = new Hashtable();
@@ -75,7 +80,13 @@ namespace SpreadsheetUtilities
         {
             get
             {
+                //get the list of dependents of given key
                 List<string> list = (List<string>)dependents[s];
+
+                //return the size of the list. 0 if it is empty
+                if (list == null)
+                    return 0;
+
                 return list.Count;
             }
         }
@@ -98,7 +109,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
+            //get the dependents of s
             IEnumerable<string> output = (List<string>)dependents[s];
+
+            //return the dependents of s. Empty list if it is empty
             if (output == null)
                 return new List<string>();
             return output;
@@ -108,8 +122,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependees(string s)
         {
-
+            //get the dependees of s
             List<string> output = (List<string>)dependees[s];
+
+            //return the dependees of s. Empty list if it is empty
             if (output == null)
                 return new List<string>();
             return output;
@@ -126,30 +142,35 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t cannot be evaluated until s is</param> ///
         public void AddDependency(string s, string t)
         {
+            //get the list of dependents of s
             List<string> s_dependents = (List<string>)GetDependents(s);
-
+            
+            //add t to s if it is not existed yet
             if (!s_dependents.Contains(t))
             {
                 s_dependents.Add(t);
-                size++;
+                size++; //update size
             }
-            else
+            else //finish if the pair already exists
                 return;
 
+            //update the list of dependents
             if (dependents.ContainsKey(s))
-                dependents[s] = s_dependents;
+                dependents[s] = s_dependents; //replace the original list
             else
-                dependents.Add(s, s_dependents);
+                dependents.Add(s, s_dependents); //assign the new list
 
+            //get the list of dependees
             List<string> t_dependees = (List<string>)GetDependees(t);
 
             if (!t_dependees.Contains(s))
-                t_dependees.Add(s);
+                t_dependees.Add(s); //add s to t
 
+            //update the list of dependees
             if (dependees.ContainsKey(t))
-                dependees[t] = t_dependees;
+                dependees[t] = t_dependees; //replace the original list
             else
-                dependees.Add(t, t_dependees);
+                dependees.Add(t, t_dependees); //assign the new list
         }
 
         /// <summary>
@@ -159,17 +180,31 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
+            //get the list of dependents
             List<string> s_dependents = (List<string>)GetDependents(s);
 
+            //remove t from s if it exists
             if (s_dependents.Contains(t))
             {
                 s_dependents.Remove(t);
-                size--;
+
+                //remove s if no dependents left
+                if(s_dependents.Count == 0)
+                    dependents.Remove(s);
+
+                size--; //update size
             }
+
+            //get the list of dependees
             List<string> t_dependees = (List<string>)GetDependees(t);
+            //remove s from t if it exists
             if (t_dependees.Contains(s))
             {
                 t_dependees.Remove(s);
+
+                //remove s if no dependents left
+                if (t_dependees.Count == 0)
+                    dependees.Remove(t);
             }
         }
         /// <summary>
@@ -178,12 +213,15 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
+            //copy the cells in the list of dependents
             List<string> list = DeepCopy(s, dependents);
 
+            //remove every original dependents
             foreach (string r in list)
             {
                 RemoveDependency(s, r);
             }
+            //add every given item to hash tables
             foreach (string r in newDependents)
             {
                 AddDependency(s, r);
@@ -195,25 +233,38 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
+            //copy the cells in the list of dependents
             List<string> list = DeepCopy(s, dependees);
 
+            //remove every original dependents
             foreach (string t in list)
             {
                 RemoveDependency(t, s);
             }
+            //add every given item to hash tables
             foreach (string t in newDependees)
             {
                 AddDependency(t, s);
             }
         }
 
+        /// <summary>
+        /// copy every given values to a new list
+        /// </summary>
+        /// <param name="s"> key string to get the original data</param>
+        /// <param name="table">hash table to search </param>
+        /// <returns> a new list containing the same data but not related to the hash table</returns>
         private List<string> DeepCopy(string s, Hashtable table)
         {
-            List<string> list = new List<string>();
-            List<string> originalDependents = (List<string>)table[s];
+            
+            List<string> list = new List<string>(); //output list
+            List<string> originalDependents = (List<string>)table[s]; //get all cells
+
+            //initialize new list if necessary
             if (originalDependents == null)
                 originalDependents = new List<string>();
 
+            //add every item to the output list
             foreach (string item in originalDependents)
                 list.Add(item);
 
