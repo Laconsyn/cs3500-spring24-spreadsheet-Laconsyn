@@ -93,7 +93,7 @@ namespace FormulaEvaluator
                         valueStack.Push(value);
                 }
                 //variable
-                else if (isVariale(token))
+                else if (isVariable(token))
                 {
                     if (valueStack == null)
                         throw new ArgumentException("the value stack is empty");
@@ -131,18 +131,18 @@ namespace FormulaEvaluator
                 // ")"
                 else if (token == ")")
                 {
-                    //get operator at the top
+                    //check the operators at the top in order
                     bool hasTop = operatorStack.TryPeek(out top);
-                    //If + or - is at the top
+
                     if (hasTop && (top == "+" || top == "-"))
                         calculate(operatorStack, valueStack); //calculate and push the result
-                    //check if "(" is found
+
                     hasTop = operatorStack.TryPeek(out top);
-                    if (!hasTop || (top != "("))
+                    if (!hasTop || (top != "(")) //only "(" is acceptable
                         throw new ArgumentException("A '(' isn't found where expected");
                     else //pop "("
                         operatorStack.Pop();
-                    //If * or / is at the top
+
                     hasTop = operatorStack.TryPeek(out top);
                     if (hasTop && (top == "*" || top == "/"))
                         calculate(operatorStack, valueStack); //calculate and push the result
@@ -224,7 +224,7 @@ namespace FormulaEvaluator
         /// </summary>
         /// <param name="variable_name">given string to check if it is a variable name</param>
         /// <returns>true if the given string is a variable name</returns>
-        private static bool isVariale(string variable_name)
+        private static bool isVariable(string variable_name)
         {
             int letterCount = 0;
             int digitCount = 0;
@@ -239,7 +239,7 @@ namespace FormulaEvaluator
                 //check ascii code
                 int ascii = (int) character;
                 //letter
-                if (ascii >= 65 && ascii <= 122)
+                if (Char.IsLetter(character))
                 {
                     //false if check letter after digit
                     if (digitCount != 0) { return false; }
@@ -248,7 +248,7 @@ namespace FormulaEvaluator
                     letterCount++;
                 }
                 //digits
-                else if (ascii >= 48 && ascii <= 57)
+                else if (Char.IsDigit(character))
                 {
                     //update digit count
                     digitCount++;
