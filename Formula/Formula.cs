@@ -16,6 +16,12 @@
 //  (Version 1.2) Changed the definition of equality with regards
 //                to numeric tokens
 
+// (Cheuk Yin Lau) 
+// Version 1.3 (4/2/24) 
+
+// Change log:
+//  (Version 1.3) Content of every method is filled. 
+
 
 using System;
 using System.Collections.Generic;
@@ -50,9 +56,9 @@ namespace SpreadsheetUtilities
   public class Formula
   {
 
-        private List<string> tokens;
-        private Func<string, string> normalize;
-        private Func<string, bool> isValid;
+        private List<string> tokens; //list of all tokens representing the formula
+        private Func<string, string> normalize; //given method to normalize each token
+        private Func<string, bool> isValid; //given method for further restriction on variable names
 
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
@@ -93,18 +99,22 @@ namespace SpreadsheetUtilities
     {
             tokens = new List<string>();
 
+            //get and iterate each token
             IEnumerable<string> rawTokens = GetTokens(formula);
             foreach (string s in rawTokens)
             {
-                string token = normalize(s);
-                if(isVariable(token)&&!isValid(token))
+                string token = tryScientific(s); //convert scientific notations
+
+                token = normalize(s);
+
+                if(isVariable(token)&&!isValid(token)) //wrong token syntax
                     throw new FormulaFormatException("Token is invalid: " + token);
 
                 if (token.Length != 0) //ignore empty tokens
                     tokens.Add(token);
             }
 
-            if (!checkSyntax())
+            if (!checkSyntax()) //check all syntax
                 throw new FormulaFormatException("Syntax incorrect! ");
 
             this.normalize = normalize;
@@ -210,6 +220,35 @@ namespace SpreadsheetUtilities
             }
 
             return false; //anything else
+        }
+
+        private string tryScientific(string token)
+        {
+            if (!Char.IsDigit(token[0]) || !Char.IsDigit(token[token.Length-1]))
+                return token; //not number
+
+            int e = -1; //index of e
+
+            //get index of e
+            for (int i = 0; i < token.Length; i++) 
+                if (token[i] == 'e' || token[i] == 'E')
+                {
+                    e = i;
+                    break;
+                }
+
+            if (e == -1) 
+                return token; //no e
+
+            //get numbers before and after e
+            double before = 0, after = 0;
+            double.TryParse(token.Substring(0, e), out before); 
+            double.TryParse(token.Substring(e+1), out after);
+
+            //compute the number
+            double num = before * Math.Pow(10, after);
+            return num.ToString();
+
         }
 
         /// <summary>
@@ -404,6 +443,7 @@ namespace SpreadsheetUtilities
     {
             List<string> list = new List<string>();
 
+            //get all variables in tokens
             foreach(string token in tokens)
                 if(isVariable(token))
                     list.Add(token);
@@ -424,6 +464,8 @@ namespace SpreadsheetUtilities
     public override string ToString()
     {
             string output = "";
+
+            //concatenate every token
             foreach (string token in tokens)
                 output += token;
 
@@ -454,8 +496,10 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override bool Equals(object? obj)
     {
+            //check null object and non formula objects
             if(obj == null || !(obj is Formula)) return false;
 
+            //compare string of both formula
             return ToString().Equals(((Formula)obj).ToString());
     }
 

@@ -1,11 +1,21 @@
+// Tests for the Formula class.
+// Check edge cases and possible errors. 
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 
 namespace FormulaTests
 {
+    /// <summary>
+    ///This is a test class for Formula and is intended
+    ///to contain all FormulaTests Unit Tests
+    ///</summary>
     [TestClass]
     public class FormulaTests
     {
+        /// <summary>
+        ///Two basic constructor for formula
+        ///</summary>
         [TestMethod]
         public void Constructor()
         {
@@ -13,6 +23,9 @@ namespace FormulaTests
             Formula formula3 = new Formula("x+1", s => s.ToUpper(), s => s.Equals("X"));
         }
 
+        /// <summary>
+        ///All syntax error cases for formula following the parsing rules
+        ///</summary>
         [TestMethod]
         public void SyntaxException()
         {
@@ -30,6 +43,9 @@ namespace FormulaTests
             try { Formula formula = new Formula("x", s => s, s => s.Equals("y"));   Assert.Fail(); } catch (FormulaFormatException e) { }
         }
 
+        /// <summary>
+        ///checking numbers for the evaluate method 
+        ///</summary>
         [TestMethod]
         public void NumbersEvaluate()
         {
@@ -38,12 +54,17 @@ namespace FormulaTests
             Assert.AreEqual(new Formula("(0)").Evaluate(null), 0d);
             Assert.AreEqual(new Formula("1.1+0.01").Evaluate(null), 1.11);
             Assert.AreEqual(new Formula("99999999 + 11111111").Evaluate(null), 111111110d);
+            Assert.AreEqual(new Formula("5e2").Evaluate(null), 500d);
+            Assert.AreEqual(new Formula("1.5E-2").Evaluate(null), 0.015);
 
             //division zero
             object error = new Formula("1/0").Evaluate(null);
             Assert.IsTrue(error is FormulaError);
         }
 
+        /// <summary>
+        ///checking variables evaluation and variable names for the evaluate method 
+        ///</summary>
         [TestMethod]
         public void VariablesEvaluate()
         {
@@ -63,6 +84,9 @@ namespace FormulaTests
             Assert.IsTrue(new Formula("x+1").Evaluate(x=>throw new ArgumentException()) is FormulaError);
         }
 
+        /// <summary>
+        ///checking space evaluation 
+        ///</summary>
         [TestMethod]
         public void Spaces()
         {
@@ -72,6 +96,9 @@ namespace FormulaTests
             try {new Formula(" x  + y z ").Evaluate(s=>1); Assert.Fail(); } catch (FormulaFormatException e) { }
         }
 
+        /// <summary>
+        ///checking the getVariable method 
+        ///</summary>
         [TestMethod]
         public void GetVariables()
         {
@@ -85,14 +112,21 @@ namespace FormulaTests
             
         }
 
+        /// <summary>
+        ///checking the ToString method 
+        ///</summary>
         [TestMethod]
         public void ToString()
         {
+            Assert.AreEqual(new Formula("1+1", s => s.ToUpper(), s => true).ToString(), "1+1");
             Assert.AreEqual(new Formula("  x  + y1-  (1  ) ").ToString(), "x+y1-(1)");
             Assert.AreEqual(new Formula("x+y", s=>s.ToUpper(),s=>true).ToString(), "X+Y");
 
         }
 
+        /// <summary>
+        ///checking the Equals method 
+        ///</summary>
         [TestMethod]
         public void Equals()
         {
@@ -103,6 +137,9 @@ namespace FormulaTests
             Assert.IsFalse(new Formula("X+Y", s => s.ToLower(), s => true).Equals(new Formula("X+Y")));
         }
 
+        /// <summary>
+        ///checking the operator method == and !=
+        ///</summary>
         [TestMethod]
         public void Operator()
         {
@@ -118,6 +155,9 @@ namespace FormulaTests
             Assert.IsFalse(new Formula("x+y", s => s.ToUpper(), s => true) != (new Formula("X+Y")));
         }
 
+        /// <summary>
+        ///checking the getHashCode method 
+        ///</summary>
         [TestMethod]
         public void GetHashCode()
         {

@@ -1,3 +1,6 @@
+// Tests for the Dependency Graph class.
+// Check edge cases and possible errors. 
+
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
