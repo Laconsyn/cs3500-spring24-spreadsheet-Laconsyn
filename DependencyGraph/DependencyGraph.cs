@@ -81,7 +81,7 @@ namespace SpreadsheetUtilities
             get
             {
                 //get the list of dependents of given key
-                List<string> list = (List<string>)dependents[s];
+                List<string> list = (List<string>)dependees[s];
 
                 //return the size of the list. 0 if it is empty
                 if (list == null)
@@ -95,14 +95,14 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependents(string s)
         {
-            return dependees.ContainsKey(s);
+            return dependents.ContainsKey(s);
         }
         /// <summary>
         /// Reports whether dependees(s) is non-empty.
         /// </summary>
         public bool HasDependees(string s)
         {
-            return dependents.ContainsKey(s);
+            return dependees.ContainsKey(s);
         }
         /// <summary>
         /// Enumerates dependents(s).

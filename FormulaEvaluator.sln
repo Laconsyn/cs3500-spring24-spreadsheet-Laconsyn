@@ -18,7 +18,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyGraphTests", "Dep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Formula", "Formula\Formula.csproj", "{D43A6574-A7CA-439E-B643-B82C7686011D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormulaTests", "FormulaTests\FormulaTests.csproj", "{A80061D9-AC54-4CB8-8C66-97EBCE48112D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaTests", "FormulaTests\FormulaTests.csproj", "{A80061D9-AC54-4CB8-8C66-97EBCE48112D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{1D3BA16C-0094-4B3E-A654-4A998B940112}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{F301DBEF-1305-4436-B03F-F9EA2F8164AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +54,14 @@ Global
 		{A80061D9-AC54-4CB8-8C66-97EBCE48112D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A80061D9-AC54-4CB8-8C66-97EBCE48112D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A80061D9-AC54-4CB8-8C66-97EBCE48112D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D3BA16C-0094-4B3E-A654-4A998B940112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D3BA16C-0094-4B3E-A654-4A998B940112}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D3BA16C-0094-4B3E-A654-4A998B940112}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D3BA16C-0094-4B3E-A654-4A998B940112}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F301DBEF-1305-4436-B03F-F9EA2F8164AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F301DBEF-1305-4436-B03F-F9EA2F8164AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F301DBEF-1305-4436-B03F-F9EA2F8164AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F301DBEF-1305-4436-B03F-F9EA2F8164AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
