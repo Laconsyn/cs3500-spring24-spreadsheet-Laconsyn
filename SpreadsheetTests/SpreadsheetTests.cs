@@ -1,18 +1,30 @@
-global using Microsoft.VisualStudio.TestTools.UnitTesting;
+// Tests for the Spreadsheet class.
+// Check edge cases and possible errors. 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SS;
 using SpreadsheetUtilities;
 
 namespace SpreadsheetTests
 {
+    /// <summary>
+    /// tests for the spreadsheet class. 
+    /// </summary>
     [TestClass]
     public class SpreadsheetTests
     {
+        /// <summary>
+        /// test any errors on calling the empty constructor
+        /// </summary>
         [TestMethod]
         public void constructor()
         {
             Spreadsheet spreadsheet = new Spreadsheet();
         }
 
+        /// <summary>
+        /// test the SetCellContents method with formula content param. 
+        /// Valid edge formulas are tried as content. 
+        /// </summary>
         [TestMethod]
         public void SetCellContentsFormula()
         {
@@ -39,6 +51,9 @@ namespace SpreadsheetTests
 
         }
 
+        /// <summary>
+        /// null formula as param should throw ArgumentNullException
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void FormulaNullExceptions()
@@ -48,6 +63,9 @@ namespace SpreadsheetTests
             sheet.SetCellContents("A1", f);
         }
 
+        /// <summary>
+        /// loop of dependent and dependee in formulas shoud throw Circular exception
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
         public void FormulaCircularExceptions()
@@ -57,6 +75,9 @@ namespace SpreadsheetTests
             sheet.SetCellContents("A1", new Formula("A2+1"));
         }
 
+        /// <summary>
+        /// wrong format of formula should throw formula format exception in formula class
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
         public void FormulaFormatExceptions()
@@ -65,6 +86,10 @@ namespace SpreadsheetTests
             sheet.SetCellContents("A1", new Formula("???"));
         }
 
+        /// <summary>
+        /// test the SetCellContents method with double number content param. 
+        /// Valid edge doubles are tried as content. 
+        /// </summary>
         [TestMethod]
         public void SetCellContentsDouble()
         {
@@ -80,6 +105,10 @@ namespace SpreadsheetTests
 
         }
 
+        /// <summary>
+        /// test the SetCellContents method with string content param. 
+        /// Valid edge strings are tried as content. 
+        /// </summary>
         [TestMethod]
         public void SetCellContentsText()
         {
@@ -93,6 +122,9 @@ namespace SpreadsheetTests
 
         }
 
+        /// <summary>
+        /// null string as param should throw ArgumentNullException
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void stringNullException()
@@ -102,6 +134,10 @@ namespace SpreadsheetTests
             sheet.SetCellContents("A1", s);
         }
 
+        /// <summary>
+        /// test the SetCellContents method with string name as param. 
+        /// Valid edge strings are tried as content. 
+        /// </summary>
         [TestMethod]
         public void SetCellNames()
         {
@@ -113,6 +149,10 @@ namespace SpreadsheetTests
 
         }
 
+        /// <summary>
+        /// null name should throw invalid name exception.
+        /// set string content method is tested. 
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void stringNameExceptions()
@@ -122,6 +162,10 @@ namespace SpreadsheetTests
             sheet.SetCellContents(null, "a"); 
         }
 
+        /// <summary>
+        /// name with invalid characters should throw invalid name exception.
+        /// set formula content method is tested. 
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void doubleNameExceptions()
@@ -131,6 +175,10 @@ namespace SpreadsheetTests
             sheet.SetCellContents("a+1", new Formula("1"));
         }
 
+        /// <summary>
+        /// name with wrong format should throw invalid name exception.
+        /// set double content method is tested. 
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void formulaNameExceptions()
@@ -140,6 +188,10 @@ namespace SpreadsheetTests
             sheet.SetCellContents("1a", new Formula("1"));
         }
 
+        /// <summary>
+        /// empty name with length == 0 should throw invalid name exception.
+        /// get cell content method is tested. 
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void getContentsNameException()
@@ -150,6 +202,10 @@ namespace SpreadsheetTests
         }
 
 
+        /// <summary>
+        /// test the GetCellContents method with double, string, formula type content. 
+        /// empty string is also tested. 
+        /// </summary>
         [TestMethod]
         public void GetCellContents()
         {
@@ -166,6 +222,10 @@ namespace SpreadsheetTests
             Assert.AreEqual(sheet.GetCellContents("D1"), "");
         }
 
+        /// <summary>
+        /// test the GetNamesOfAllNonemptyCells with double, string and formula type content
+        /// Cells are also modified to check any mistakes by the method during the process. 
+        /// </summary>
         [TestMethod]
         public void GetNamesOfAllNonemptyCells()
         {

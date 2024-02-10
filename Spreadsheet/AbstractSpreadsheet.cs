@@ -314,12 +314,20 @@ namespace SS
             return GetCellsToRecalculate(new HashSet<String>() { name });
         }
 
-
         /// <summary>
         /// A helper for the GetCellsToRecalculate method.
-        /// 
-        ///   -- You should fully comment what is going on below using XML tags as appropriate --
+        /// Recursive method that visits every dependent of the given cell. 
+        /// It calls itself when a non-visited dependent cell is reached. 
+        /// Side effect is that the given visited and changed list would be updated. 
         /// </summary>
+        /// <param name="start">starting dependee cell of the dependent tracking</param>
+        /// <param name="name">name of the current cell visiting</param>
+        /// <param name="visited">list of cells that is visited. May modify. </param>
+        /// <param name="changed">list of dependent cells that needs to change from the start </param>
+        /// <exception cref="CircularException">
+        /// exception if any dependent and the starting cell depends on each other, 
+        /// which would create an infinite loop that could never evaluate either result. 
+        /// </exception>
         private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
         {
             visited.Add(name);
