@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaEvaluatorTester", "F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6CC71F01-5413-4658-A055-618937655417}"
 	ProjectSection(SolutionItems) = preProject
+		Whiteboard\architecture.png = Whiteboard\architecture.png
+		Whiteboard\dependency_graph_whiteboard.png = Whiteboard\dependency_graph_whiteboard.png
+		Whiteboard\formula_whiteboard.png = Whiteboard\formula_whiteboard.png
 		README.md = README.md
+		Whiteboard\spreadsheet_whiteboard.png = Whiteboard\spreadsheet_whiteboard.png
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyGraph", "DependencyGraph\DependencyGraph.csproj", "{5A2EB721-96C4-43BA-9DF8-A6250267D6C9}"
@@ -20,9 +24,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Formula", "Formula\Formula.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaTests", "FormulaTests\FormulaTests.csproj", "{A80061D9-AC54-4CB8-8C66-97EBCE48112D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{1D3BA16C-0094-4B3E-A654-4A998B940112}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{1D3BA16C-0094-4B3E-A654-4A998B940112}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{F301DBEF-1305-4436-B03F-F9EA2F8164AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{F301DBEF-1305-4436-B03F-F9EA2F8164AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

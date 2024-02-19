@@ -12,7 +12,7 @@ Copyright:  CS 3500 and Cheuk Yin Lau - This work may not be copied for use in A
 
 # Overview of the Spreadsheet functionality
 
-The Spreadsheet program is currently capable of evaluations and dependency graphs. 
+The Spreadsheet program is currently capable of spreadsheet cell settings and value evaluations. 
 Evaluator.Evaluate could calculate a string of expression using non-negative integers and variables.
 Dependency Graph is an object to compute cells in a formula in a correct order. 
 Formula is an object representing a sequence of tokens and variables with specific grammar. 
@@ -24,3 +24,5 @@ Future extensions are adding more functions capable for spreadsheets.
     1. Assignment One:   Predicted Hours:          8        Actual Hours:   8
     2. Assignment Two:   Predicted Hours:          8        Actual Hours:   6
     3. Assignment Three: Predicted Hours:          6        Actual Hours:   6
+    4. Assignment Four:  Predicted Hours:          8        Actual Hours:   8
+    5. Assignment Five:  Predicted Hours:          8        Actual Hours:   10

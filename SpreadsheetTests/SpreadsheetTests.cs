@@ -291,6 +291,34 @@ namespace SpreadsheetTests
             Assert.AreEqual(sheet.GetSavedVersion("spreadsheet2.txt"), "1.1");
 
         }
+
+        [TestMethod]
+        public void StressTestSet()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            
+            for(int i = 1; i < 1000; i++)
+            {
+                sheet.SetContentsOfCell("A"+i, "=A" + (i-1));
+            }
+
+            IList<string> d = sheet.SetContentsOfCell("A0", "0");
+        }
+
+        [TestMethod]
+        public void StressTestGet()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+
+            sheet.SetContentsOfCell("A0", "0");
+
+            for (int i = 0; i < 1000; i++)
+            {
+                sheet.SetContentsOfCell("A" + i, "=A" + (i - 1));
+            }
+
+            object content = sheet.GetCellContents("A999");
+        }
     }
 }
 
