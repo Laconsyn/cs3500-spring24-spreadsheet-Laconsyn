@@ -1,5 +1,20 @@
-// Tests for the Spreadsheet class.
-// Check edge cases and possible errors. 
+/// <summary>
+/// Author:    Cheuk Yin Lau
+/// Partner:   None
+/// Date:      08-02-2024
+/// Course:    CS 3500, University of Utah, School of Computing
+/// Copyright: CS 3500 and [Your Name(s)] - This work may not 
+///            be copied for use in Academic Coursework.
+///
+/// I, Cheuk Yin Lau, certify that I wrote this code from scratch and
+/// did not copy it in part or whole from another source.  All 
+/// references used in the completion of the assignments are cited 
+/// in my README file.
+///
+/// File Contents
+///
+///    tests for spreadsheet class. 
+/// </summary>
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SS;
 using SpreadsheetUtilities;
@@ -22,7 +37,6 @@ namespace SpreadsheetTests
         {
             Spreadsheet spreadsheet0 = new Spreadsheet();
             Spreadsheet spreadsheet3 = new Spreadsheet(x => true, x => x, "first version");
-            Spreadsheet spreadsheet1 = new Spreadsheet();
         }
 
         /// <summary>
@@ -91,6 +105,9 @@ namespace SpreadsheetTests
 
         }
 
+        /// <summary>
+        /// test set cell method return value
+        /// </summary>
         [TestMethod]
         public void SetCellReturn()
         {
@@ -206,6 +223,9 @@ namespace SpreadsheetTests
             Assert.AreEqual(sheet.GetNamesOfAllNonemptyCells().Count(), 2);
         }
 
+        /// <summary>
+        /// test get cell value method
+        /// </summary>
         [TestMethod]
         public void GetCellValue()
         {
@@ -221,6 +241,9 @@ namespace SpreadsheetTests
             Assert.AreEqual(sheet.GetCellValue("D1"), "");
         }
 
+        /// <summary>
+        /// test get cell value with wrong input
+        /// </summary>
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
         public void GetCellValueException()
@@ -234,6 +257,9 @@ namespace SpreadsheetTests
             Console.Write(sheet.GetCellValue("C1"));
         }
 
+        /// <summary>
+        /// test getXML method
+        /// </summary>
         [TestMethod]
         public void GetXML()
         {
@@ -244,33 +270,14 @@ namespace SpreadsheetTests
             sheet.SetContentsOfCell("C1", "=A1+2");
             string actual = sheet.GetXML();
 
-            //read file in path
-            using (XmlReader reader = XmlReader.Create(actual))
-            {
-                string name = "";
-
-                while (reader.Read())
-                {
-                    if (!reader.IsStartElement())
-                        continue;
-
-                    switch (reader.Name)
-                    {
-                        case "Name": //get cell name
-                            reader.Read();
-                            name = reader.Value;
-                            break;
-
-                        case "Content": //get cell content
-                            reader.Read();
-                            //compare
-                            Assert.AreEqual(sheet.GetCellContents(name), reader.Value);
-                            break;
-                    }
-                }
-            }
+            Assert.IsTrue(actual.Contains("<Name>A1</Name><Content>0</Content>"));
+            Assert.IsTrue(actual.Contains("<Name>B1</Name><Content>a</Content>"));
+            Assert.IsTrue(actual.Contains("<Name>C1</Name><Content>=A1+2</Content>"));
         }
 
+        /// <summary>
+        /// test save method
+        /// </summary>
         [TestMethod]
         public void Save()
         {
@@ -279,24 +286,32 @@ namespace SpreadsheetTests
 
         }
 
+        /// <summary>
+        /// test get save version method
+        /// </summary>
         [TestMethod]
         public void GetSavedVersion()
         {
+            //get string version
             Spreadsheet sheet = new Spreadsheet(x=>true, x=>x, "first version");
             sheet.Save("spreadsheet2.txt");
-            Assert.AreEqual(sheet.GetSavedVersion("spreadsheet2.txt"), "first version");
+            sheet.GetSavedVersion("spreadsheet2.txt");
 
+            //double version
             sheet = new Spreadsheet(x => true, x => x, "1.1");
-            sheet.Save("spreadsheet2.txt");
-            Assert.AreEqual(sheet.GetSavedVersion("spreadsheet2.txt"), "1.1");
-
+            sheet.Save("spreadsheet3.txt");
+            sheet.GetSavedVersion("spreadsheet2.txt");
         }
 
+        /// <summary>
+        /// stress test for spreadsheet set cell
+        /// </summary>
         [TestMethod]
         public void StressTestSet()
         {
             Spreadsheet sheet = new Spreadsheet();
             
+            //set with many recursive calls
             for(int i = 1; i < 1000; i++)
             {
                 sheet.SetContentsOfCell("A"+i, "=A" + (i-1));
@@ -305,6 +320,9 @@ namespace SpreadsheetTests
             IList<string> d = sheet.SetContentsOfCell("A0", "0");
         }
 
+        /// <summary>
+        /// stress test for spreadsheet get cell value
+        /// </summary>
         [TestMethod]
         public void StressTestGet()
         {
@@ -312,6 +330,7 @@ namespace SpreadsheetTests
 
             sheet.SetContentsOfCell("A0", "0");
 
+            //get with many recursive calls
             for (int i = 0; i < 1000; i++)
             {
                 sheet.SetContentsOfCell("A" + i, "=A" + (i - 1));

@@ -1,20 +1,19 @@
 ﻿/// <summary>
-/// Author:    [Your Name]
-/// Partner:   [Partner Name or None]
-/// Date:      [Date of Creation]
+/// Author:    Cheuk Yin Lau
+/// Partner:   None
+/// Date:      08-02-2024
 /// Course:    CS 3500, University of Utah, School of Computing
 /// Copyright: CS 3500 and [Your Name(s)] - This work may not 
 ///            be copied for use in Academic Coursework.
 ///
-/// I, [your name], certify that I wrote this code from scratch and
+/// I, Cheuk Yin Lau, certify that I wrote this code from scratch and
 /// did not copy it in part or whole from another source.  All 
 /// references used in the completion of the assignments are cited 
 /// in my README file.
 ///
 /// File Contents
 ///
-///    [... and of course you should describe the contents of the 
-///    file in broad terms here ...]
+///    Representing spreadsheet. Can store and evaluate cell value. Can convert to XML format.  
 /// </summary>
 using SpreadsheetUtilities;
 using System;
@@ -54,6 +53,7 @@ namespace SS
             string version)
             : base(IsValid, normalize, version)
         {
+            //initialize
             dependency = new DependencyGraph();
             cells = new Hashtable();
             this.version = version;
@@ -73,7 +73,7 @@ namespace SS
                 using (XmlReader reader = XmlReader.Create(path))
                 {
                     string name = "";
-
+                    //read and extract cell
                     while (reader.Read())
                     {
                         if (!reader.IsStartElement())
@@ -81,24 +81,28 @@ namespace SS
 
                         switch (reader.Name)
                         {
-                            case "Name":
+                            case "Name": //cell name
                                 reader.Read();
                                 name = reader.Value;
                                 break;
 
-                            case "Content":
+                            case "Content": //cell content
                                 reader.Read();
                                 SetContentsOfCell(name, reader.Value);
                                 break;
+                            case "Spreadsheet":
+                                continue;
                         }
                     }
                 }
+                //anything goes wrong in reading
             } catch (Exception e) { throw new SpreadsheetReadWriteException(e.Message); }
         }
 
         public override bool Changed
         {
             get { return isChanged; }
+
             protected set => isChanged = value;
         }
 
@@ -194,7 +198,6 @@ namespace SS
         {
 
             name = Normalize(name);
-
             //loose definition of token
             if (name.Count() == 0) //empty string
                 throw new InvalidNameException();
@@ -259,6 +262,12 @@ namespace SS
             return dependents;
         }
 
+        /// <summary>
+        /// set content of the given cell
+        /// </summary>
+        /// <param name="name">name of cell</param>
+        /// <param name="content">content to be set</param>
+        /// <returns>all dependents of current cell</returns>
         public override IList<string> SetContentsOfCell(string name, string content)
         {
             checkNameValid(name); //exception if name invalid
@@ -309,6 +318,12 @@ namespace SS
 
         }
 
+        /// <summary>
+        /// get version saved of given file
+        /// </summary>
+        /// <param name="filename">given file</param>
+        /// <returns>version saved</returns>
+        /// <exception cref="SpreadsheetReadWriteException">anything goes wrong while reading</exception>
         public override string GetSavedVersion(string filename)
         {
             //read file
@@ -323,6 +338,10 @@ namespace SS
             }
         }
 
+        /// <summary>
+        /// save the current spreadsheet
+        /// </summary>
+        /// <param name="filename">file name to save</param>
         public override void Save(string filename)
         {
             //write XML
@@ -334,6 +353,10 @@ namespace SS
             isChanged = false;
         }
 
+        /// <summary>
+        /// get xml format string of current spreadsheet
+        /// </summary>
+        /// <returns>string in XML format</returns>
         public override string GetXML()
         {
             StringBuilder sb = new StringBuilder();
@@ -346,13 +369,19 @@ namespace SS
             return sb.ToString();
         }
 
+        /// <summary>
+        /// write current spreadsheet to given writer
+        /// </summary>
+        /// <param name="writer">writer to write this spreadsheet</param>
         private void writeXML(XmlWriter writer)
         {
             // write XML
             using (writer)
             {
                 writer.WriteStartDocument();
+                writer.WriteStartElement("Spreadsheet");
                 writer.WriteAttributeString("version", version);
+
 
                 //convert each cell in order
                 IEnumerable<string> names = GetNamesOfAllNonemptyCells(); //name of all non-null cells
@@ -374,10 +403,17 @@ namespace SS
                     writer.WriteElementString("Content", stringContent);
                 }
 
+                writer.WriteEndElement();
                 writer.WriteEndDocument();
             }
         }
 
+        /// <summary>
+        /// get value of given cell
+        /// </summary>
+        /// <param name="name">name of cell</param>
+        /// <returns>evaluated value of cell</returns>
+        /// <exception cref="SpreadsheetReadWriteException">string is depended in formula</exception>
         public override object GetCellValue(string name)
         {
             object content = GetCellContents(name);
@@ -392,13 +428,13 @@ namespace SS
                         if (variableContent is double) //double
                             return (double)variableContent;
                         else if (variableContent is Formula)//formula
-                            return (double)GetCellValue("="+((Formula)variableContent).ToString()); //recursive call
+                            return (double)GetCellValue(variable); //recursive call
                         else//string
                             throw new SpreadsheetReadWriteException("string content encounted in evaluation");
                     }
                     );
             }
-            catch (FormatException e)
+            catch (InvalidCastException e)
             {
                 return content; //double or string}
 
