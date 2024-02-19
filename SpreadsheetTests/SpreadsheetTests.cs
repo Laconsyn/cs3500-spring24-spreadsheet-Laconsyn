@@ -3,6 +3,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SS;
 using SpreadsheetUtilities;
+using System.IO;
+using System.Xml;
 
 namespace SpreadsheetTests
 {
@@ -18,49 +20,9 @@ namespace SpreadsheetTests
         [TestMethod]
         public void constructor()
         {
-            Spreadsheet spreadsheet = new Spreadsheet();
-        }
-
-        /// <summary>
-        /// test the SetCellContents method with formula content param. 
-        /// Valid edge formulas are tried as content. 
-        /// </summary>
-        [TestMethod]
-        public void SetCellContentsFormula()
-        {
-            //edge formula
-            Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("A1", new Formula("1+(1-1)*1/1"));
-            sheet.SetCellContents("A1", new Formula("1.5e-2*_bc3"));
-            sheet.SetCellContents("A1", new Formula("0"));
-            sheet.SetCellContents("A1", new Formula("3/0"));
-
-            //return set
-            ISet<string> actual = sheet.SetCellContents("B1", new Formula("A1+A2"));
-            Assert.AreEqual(actual.Count, 1);
-
-            actual = sheet.SetCellContents("A1", new Formula("C1+A2+(3)"));
-            Assert.AreEqual(actual.Count, 2); //dependent
-
-            actual = sheet.SetCellContents("A2", new Formula("C1*bc23"));
-            Assert.AreEqual(actual.Count, 3); //multiple dependents
-
-            actual = sheet.SetCellContents("C1", new Formula("2"));
-            Assert.AreEqual(actual.Count, 4); //indirect dependents
-
-
-        }
-
-        /// <summary>
-        /// null formula as param should throw ArgumentNullException
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void FormulaNullExceptions()
-        {
-            Spreadsheet sheet = new Spreadsheet();
-            Formula f = null;
-            sheet.SetCellContents("A1", f);
+            Spreadsheet spreadsheet0 = new Spreadsheet();
+            Spreadsheet spreadsheet3 = new Spreadsheet(x => true, x => x, "first version");
+            Spreadsheet spreadsheet1 = new Spreadsheet();
         }
 
         /// <summary>
@@ -71,8 +33,8 @@ namespace SpreadsheetTests
         public void FormulaCircularExceptions()
         {
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("A2", new Formula("A1+1"));
-            sheet.SetCellContents("A1", new Formula("A2+1"));
+            sheet.SetContentsOfCell("A2", "=A1+1");
+            sheet.SetContentsOfCell("A1", "=A2+1");
         }
 
         /// <summary>
@@ -83,26 +45,7 @@ namespace SpreadsheetTests
         public void FormulaFormatExceptions()
         {
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("A1", new Formula("???"));
-        }
-
-        /// <summary>
-        /// test the SetCellContents method with double number content param. 
-        /// Valid edge doubles are tried as content. 
-        /// </summary>
-        [TestMethod]
-        public void SetCellContentsDouble()
-        {
-            //edge number values
-            Spreadsheet sheet = new Spreadsheet();
-            Assert.AreEqual(sheet.SetCellContents("A1", 0).Count, 1);
-            Assert.AreEqual(sheet.SetCellContents("A1", 0.01).Count, 1);
-            Assert.AreEqual(sheet.SetCellContents("A1", -100).Count, 1);
-            Assert.AreEqual(sheet.SetCellContents("A1", 999999999).Count, 1);
-
-            //return set
-            sheet.SetCellContents("B1", 1);
-
+            sheet.SetContentsOfCell("A1", "=???");
         }
 
         /// <summary>
@@ -110,28 +53,27 @@ namespace SpreadsheetTests
         /// Valid edge strings are tried as content. 
         /// </summary>
         [TestMethod]
-        public void SetCellContentsText()
+        public void SetCellContents()
         {
             //edge string values
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("A1", "");
-            sheet.SetCellContents("A1", "1");
-            sheet.SetCellContents("A1", "1A2B3C");
-            sheet.SetCellContents("A1", "A2");
-            sheet.SetCellContents("A1", "!:/_");
+            //double
+            sheet.SetContentsOfCell("A1", "0");
+            sheet.SetContentsOfCell("A1", "3.1415927");
+            sheet.SetContentsOfCell("A1", "-10000.01");
+            //string
+            sheet.SetContentsOfCell("A1", "");
+            sheet.SetContentsOfCell("A1", "1A2B3C");
+            sheet.SetContentsOfCell("A1", "A2");
+            sheet.SetContentsOfCell("A1", "!:/_");
+            //formula
+            sheet.SetContentsOfCell("A1", "=1+(1-1)*1/1");
+            sheet.SetContentsOfCell("A1", "=1.5e-2*_bc3");
+            sheet.SetContentsOfCell("A1", "=0");
+            sheet.SetContentsOfCell("A1", "=3/0");
 
-        }
-
-        /// <summary>
-        /// null string as param should throw ArgumentNullException
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void stringNullException()
-        {
-            Spreadsheet sheet = new Spreadsheet();
-            string s = null;
-            sheet.SetCellContents("A1", s);
+            sheet.SetContentsOfCell("A1", "=A2+A3");
+            sheet.SetContentsOfCell("A1", "=B1+B2");
         }
 
         /// <summary>
@@ -143,9 +85,34 @@ namespace SpreadsheetTests
         {
             //edge names
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("a", 0);
-            sheet.SetCellContents("_1a2b3cde", 0);
-            sheet.SetCellContents("____", 0);
+            sheet.SetContentsOfCell("a123", "0");
+            sheet.SetContentsOfCell("AA123", "value");
+            sheet.SetContentsOfCell("ABCDEF1", "=A1");
+
+        }
+
+        [TestMethod]
+        public void SetCellReturn()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            //return set
+            IList<string> actual = sheet.SetContentsOfCell("B1", "=A1+A2");
+            Assert.AreEqual(actual.Count, 1); //formula
+
+            actual = sheet.SetContentsOfCell("B2", "1");
+            Assert.AreEqual(actual.Count, 1); //double
+
+            actual = sheet.SetContentsOfCell("B3", "abc");
+            Assert.AreEqual(actual.Count, 1); //string
+
+            actual = sheet.SetContentsOfCell("A1", "=C1+A2+(3)");
+            Assert.AreEqual(actual.Count, 2); //dependent
+
+            actual = sheet.SetContentsOfCell("A2", "=C1*bc23");
+            Assert.AreEqual(actual.Count, 3); //multiple dependents
+
+            actual = sheet.SetContentsOfCell("C1", "=2");
+            Assert.AreEqual(actual.Count, 4); //indirect dependents
 
         }
 
@@ -159,7 +126,7 @@ namespace SpreadsheetTests
         {
             //string method, null name check
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents(null, "a"); 
+            sheet.SetContentsOfCell("a_1", "a");
         }
 
         /// <summary>
@@ -172,7 +139,7 @@ namespace SpreadsheetTests
         {
             //double method, invalid character name check
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("a+1", new Formula("1"));
+            sheet.SetContentsOfCell("a1a", "1");
         }
 
         /// <summary>
@@ -185,7 +152,7 @@ namespace SpreadsheetTests
         {
             //formula method, name[0] digit check
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("1a", new Formula("1"));
+            sheet.SetContentsOfCell("1a", "=1");
         }
 
         /// <summary>
@@ -211,11 +178,11 @@ namespace SpreadsheetTests
         {
 
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("A1", 1);
-            Assert.AreEqual(sheet.GetCellContents("A1"),1d);
-            sheet.SetCellContents("B1", "a");
+            sheet.SetContentsOfCell("A1", "1");
+            Assert.AreEqual(sheet.GetCellContents("A1"), 1d);
+            sheet.SetContentsOfCell("B1", "a");
             Assert.AreEqual(sheet.GetCellContents("B1"), "a");
-            sheet.SetCellContents("C1", new Formula("A1+bc2+2"));
+            sheet.SetContentsOfCell("C1", "=A1+bc2+2");
             Assert.AreEqual(sheet.GetCellContents("C1"), new Formula("A1+bc2+2"));
 
             //empty
@@ -231,12 +198,99 @@ namespace SpreadsheetTests
         {
 
             Spreadsheet sheet = new Spreadsheet();
-            sheet.SetCellContents("A1", new Formula("A2")); //get name
-            Assert.AreEqual(sheet.GetNamesOfAllNonemptyCells().Count(),1);
-            sheet.SetCellContents("B1", "a"); //multiple names
+            sheet.SetContentsOfCell("A1", "=A2"); //get name
+            Assert.AreEqual(sheet.GetNamesOfAllNonemptyCells().Count(), 1);
+            sheet.SetContentsOfCell("B1", "a"); //multiple names
             Assert.AreEqual(sheet.GetNamesOfAllNonemptyCells().Count(), 2);
-            sheet.SetCellContents("A1", 0); //repeat setter
+            sheet.SetContentsOfCell("A1", "0"); //repeat setter
             Assert.AreEqual(sheet.GetNamesOfAllNonemptyCells().Count(), 2);
+        }
+
+        [TestMethod]
+        public void GetCellValue()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetContentsOfCell("A1", "1"); //double
+            Assert.AreEqual(sheet.GetCellValue("A1"), 1d);
+            sheet.SetContentsOfCell("B1", "a"); //string
+            Assert.AreEqual(sheet.GetCellValue("B1"), "a");
+            sheet.SetContentsOfCell("C1", "=A1+2"); //formula
+            Assert.AreEqual(sheet.GetCellValue("C1"), 3d);
+
+            //empty
+            Assert.AreEqual(sheet.GetCellValue("D1"), "");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void GetCellValueException()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetContentsOfCell("B1", "a");
+
+            sheet.SetContentsOfCell("A1", "=1+2");
+
+            sheet.SetContentsOfCell("C1", "=A1+B1");
+            Console.Write(sheet.GetCellValue("C1"));
+        }
+
+        [TestMethod]
+        public void GetXML()
+        {
+            //encode and decode in xml
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetContentsOfCell("A1", "0");
+            sheet.SetContentsOfCell("B1", "a");
+            sheet.SetContentsOfCell("C1", "=A1+2");
+            string actual = sheet.GetXML();
+
+            //read file in path
+            using (XmlReader reader = XmlReader.Create(actual))
+            {
+                string name = "";
+
+                while (reader.Read())
+                {
+                    if (!reader.IsStartElement())
+                        continue;
+
+                    switch (reader.Name)
+                    {
+                        case "Name": //get cell name
+                            reader.Read();
+                            name = reader.Value;
+                            break;
+
+                        case "Content": //get cell content
+                            reader.Read();
+                            //compare
+                            Assert.AreEqual(sheet.GetCellContents(name), reader.Value);
+                            break;
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Save()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.Save("spreadsheet.txt");
+
+        }
+
+        [TestMethod]
+        public void GetSavedVersion()
+        {
+            Spreadsheet sheet = new Spreadsheet(x=>true, x=>x, "first version");
+            sheet.Save("spreadsheet2.txt");
+            Assert.AreEqual(sheet.GetSavedVersion("spreadsheet2.txt"), "first version");
+
+            sheet = new Spreadsheet(x => true, x => x, "1.1");
+            sheet.Save("spreadsheet2.txt");
+            Assert.AreEqual(sheet.GetSavedVersion("spreadsheet2.txt"), "1.1");
+
         }
     }
 }
+
